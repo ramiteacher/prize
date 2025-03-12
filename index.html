@@ -3,110 +3,368 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>이미지 오버레이</title>
+    <title>최고의 어무니상</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary-color: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary-color: #7209b7;
+            --accent-color: #f72585;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --border-radius: 8px;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
         body {
-            font-family: Arial, sans-serif;
-            max-width: 1200px;
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #f5f7fa;
+            color: var(--dark-color);
+            line-height: 1.6;
+            padding: 16px;
+        }
+        
+        .container {
+            max-width: 1000px;
             margin: 0 auto;
             padding: 20px;
         }
         
         h1 {
             text-align: center;
+            margin-bottom: 1.5rem;
+            color: var(--primary-color);
+            font-weight: 700;
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: var(--secondary-color);
         }
         
         .image-container {
             position: relative;
-            margin: 20px auto;
-            display: inline-block;
+            margin: 0 auto;
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            overflow: hidden;
+            border-radius: var(--border-radius);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         
         #baseImage {
-            /* 원본 크기 그대로 표시하기 위해 width, height 제한 제거 */
+            max-width: 100%;
+            height: auto;
             display: block;
         }
         
-        #overlayImage {
-            position: absolute;
-            left: 142px;
-            top: 228px;
-            width: 251px;  /* 393 - 142 = 251 */
-            height: 263px; /* 491 - 228 = 263 */
-            object-fit: cover;
-        }
-        
         .controls {
-            margin: 20px 0;
-            text-align: center;
+            margin-bottom: 20px;
         }
         
-        button {
-            padding: 8px 16px;
-            margin: 0 5px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 4px;
+        .file-input-wrapper {
+            position: relative;
+            margin-bottom: 16px;
+        }
+        
+        .file-input-wrapper input[type="file"] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
             cursor: pointer;
         }
         
+        .file-input-button {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: var(--secondary-color);
+            color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        
+        .file-input-button:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .overlay-settings {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+        
+        .setting-group {
+            margin-bottom: 12px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+        }
+        
+        .range-value {
+            font-size: 0.9em;
+            color: #666;
+        }
+        
+        button {
+            padding: 12px 24px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 1rem;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            display: block;
+            width: 100%;
+            max-width: 300px;
+            margin: 0 auto;
+        }
+        
         button:hover {
-            background-color: #45a049;
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+        
+        .preview-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 24px;
+        }
+        
+        #previewCanvas {
+            max-width: 100%;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 12px;
+            }
+            
+            .card {
+                padding: 16px;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            .overlay-settings {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
-    <!-- html2canvas 라이브러리 추가 -->
-    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 </head>
 <body>
-    <h1>이미지 위에 이미지 배치하기</h1>
-    
-    <div class="controls">
-        <p>오버레이 이미지 선택:</p>
-        <input type="file" id="overlayImageInput" accept="image/*">
-    </div>
-    
-    <div class="controls">
-        <div class="image-container">
-            <img id="baseImage" src="dd.jpg" alt="기본 이미지">
-            <img id="overlayImage" style="display: none;" alt="오버레이 이미지">
+    <div class="container">
+        <h1>이미지 합성하기</h1>
+        
+        <div class="card">
+            <h2 class="card-title">1. 기본 이미지</h2>
+            <div class="image-container">
+                <img id="baseImage" src="dd.jpg" alt="기본 이미지">
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2 class="card-title">2. 이미지 파일 선택</h2>
+            <div class="controls">
+                <div class="file-input-wrapper">
+                    <div class="file-input-button">이미지 파일 선택</div>
+                    <input type="file" id="overlayImageInput" accept="image/*">
+                </div>
+            </div>
+        </div>
+        
+        <div class="card" id="settingsCard" style="display: none;">
+            <h2 class="card-title">3. 이미지 위치 및 크기 조절</h2>
+            <div class="overlay-settings">
+                <div class="setting-group">
+                    <label for="posX">가로 위치 (X)</label>
+                    <input type="range" id="posX" min="0" max="100" value="142">
+                    <span id="posXValue" class="range-value">142px</span>
+                </div>
+                <div class="setting-group">
+                    <label for="posY">세로 위치 (Y)</label>
+                    <input type="range" id="posY" min="0" max="100" value="228">
+                    <span id="posYValue" class="range-value">228px</span>
+                </div>
+                <div class="setting-group">
+                    <label for="width">너비</label>
+                    <input type="range" id="width" min="50" max="500" value="251">
+                    <span id="widthValue" class="range-value">251px</span>
+                </div>
+                <div class="setting-group">
+                    <label for="height">높이</label>
+                    <input type="range" id="height" min="50" max="500" value="263">
+                    <span id="heightValue" class="range-value">263px</span>
+                </div>
+            </div>
+            
+            <div class="preview-container">
+                <canvas id="previewCanvas"></canvas>
+            </div>
+            
+            <div class="controls" style="margin-top: 24px;">
+                <button id="saveButton">고품질 이미지로 저장</button>
+            </div>
         </div>
     </div>
     
-    <div class="controls">
-        <button id="saveButton">결과 저장</button>
-    </div>
-    
     <script>
+        // 전역 변수 설정
+        let baseImage = document.getElementById('baseImage');
+        let overlayImageData = null;
+        let canvas = document.createElement('canvas');
+        let ctx = canvas.getContext('2d');
+        let previewCanvas = document.getElementById('previewCanvas');
+        let previewCtx = previewCanvas.getContext('2d');
+        
+        // 이미지 위치 및 크기 변수
+        let posX = 142;
+        let posY = 228;
+        let overlayWidth = 251;
+        let overlayHeight = 263;
+        
+        // 기본 이미지가 로드되면 범위 슬라이더 최대값 설정
+        baseImage.onload = function() {
+            document.getElementById('posX').max = baseImage.naturalWidth;
+            document.getElementById('posY').max = baseImage.naturalHeight;
+            document.getElementById('width').max = baseImage.naturalWidth;
+            document.getElementById('height').max = baseImage.naturalHeight;
+            
+            // 초기 미리보기
+            updatePreview();
+        };
+        
         // 오버레이 이미지 업로드
         document.getElementById('overlayImageInput').addEventListener('change', function(e) {
             if (e.target.files && e.target.files[0]) {
                 const reader = new FileReader();
                 
                 reader.onload = function(event) {
-                    const overlayImage = document.getElementById('overlayImage');
-                    overlayImage.src = event.target.result;
-                    overlayImage.style.display = 'block';
+                    const img = new Image();
+                    img.onload = function() {
+                        overlayImageData = img;
+                        document.getElementById('settingsCard').style.display = 'block';
+                        updatePreview();
+                    };
+                    img.src = event.target.result;
                 };
                 
                 reader.readAsDataURL(e.target.files[0]);
             }
         });
         
+        // 위치 및 크기 슬라이더 이벤트 리스너
+        document.getElementById('posX').addEventListener('input', function(e) {
+            posX = parseInt(e.target.value);
+            document.getElementById('posXValue').textContent = posX + 'px';
+            updatePreview();
+        });
+        
+        document.getElementById('posY').addEventListener('input', function(e) {
+            posY = parseInt(e.target.value);
+            document.getElementById('posYValue').textContent = posY + 'px';
+            updatePreview();
+        });
+        
+        document.getElementById('width').addEventListener('input', function(e) {
+            overlayWidth = parseInt(e.target.value);
+            document.getElementById('widthValue').textContent = overlayWidth + 'px';
+            updatePreview();
+        });
+        
+        document.getElementById('height').addEventListener('input', function(e) {
+            overlayHeight = parseInt(e.target.value);
+            document.getElementById('heightValue').textContent = overlayHeight + 'px';
+            updatePreview();
+        });
+        
+        // 미리보기 업데이트 함수
+        function updatePreview() {
+            if (!baseImage.complete) return;
+            
+            previewCanvas.width = baseImage.naturalWidth;
+            previewCanvas.height = baseImage.naturalHeight;
+            
+            previewCtx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
+            previewCtx.drawImage(baseImage, 0, 0);
+            
+            if (overlayImageData) {
+                previewCtx.drawImage(
+                    overlayImageData, 
+                    posX, 
+                    posY, 
+                    overlayWidth, 
+                    overlayHeight
+                );
+                previewCanvas.style.display = 'block';
+            }
+        }
+        
         // 결과 저장
         document.getElementById('saveButton').addEventListener('click', function() {
-            const container = document.querySelector('.image-container');
+            if (!overlayImageData) {
+                alert('오버레이 이미지를 먼저 선택해주세요.');
+                return;
+            }
             
-            // 저장 시작을 알림
-            alert('이미지 저장 준비 중...');
+            // 고품질 렌더링을 위한 캔버스 설정
+            canvas.width = baseImage.naturalWidth;
+            canvas.height = baseImage.naturalHeight;
             
-            // html2canvas 라이브러리를 사용하여 이미지를 캡처하고 저장
-            html2canvas(container, {
-                allowTaint: true,
-                useCORS: true
-            }).then(function(canvas) {
-                // 캔버스를 이미지 데이터로 변환
-                const imageData = canvas.toDataURL('image/png');
+            // 기본 이미지 그리기
+            ctx.drawImage(baseImage, 0, 0);
+            
+            // 오버레이 이미지 그리기
+            ctx.drawImage(
+                overlayImageData, 
+                posX, 
+                posY, 
+                overlayWidth, 
+                overlayHeight
+            );
+            
+            // 고품질 PNG로 저장
+            try {
+                const imageData = canvas.toDataURL('image/png', 1.0);
                 
                 // 다운로드 링크 생성
                 const link = document.createElement('a');
@@ -117,10 +375,10 @@
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
-            }).catch(function(error) {
+            } catch (error) {
                 console.error('이미지 저장 중 오류 발생:', error);
                 alert('이미지 저장 중 오류가 발생했습니다.');
-            });
+            }
         });
     </script>
 </body>
